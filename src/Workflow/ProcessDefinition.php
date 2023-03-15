@@ -287,6 +287,16 @@ class ProcessDefinition implements ProcessDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    public function getAnything($type)
+    {
+        if (property_exists(self::class, $type)) {
+            return $this->{$type};
+        }
+    }    
+
+    /**
+     * {@inheritdoc}
+     */
     public function isSuspended()
     {
         $this->suspended;
