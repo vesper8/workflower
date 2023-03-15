@@ -12,3 +12,4 @@
 /php-cs-fixer.phar
 /vendor/
 *.iml
+.phpunit.result.cache

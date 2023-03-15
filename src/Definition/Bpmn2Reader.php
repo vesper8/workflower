@@ -56,6 +56,72 @@ class Bpmn2Reader
     }
 
     /**
+     * @param string $source
+     *
+     * @return []
+     *
+     * @throws IdAttributeNotFoundException
+     *
+     * @since Method available since Release 1.3.0
+     */
+    public function readSourceAndGetOriginArray($source)
+    {
+        $document = new \DOMDocument();
+        $errorToExceptionContext = new ErrorToExceptionContext(E_WARNING, function () use ($source, $document) {
+            $document->loadXML($source);
+        });
+        $errorToExceptionContext->invoke();
+
+        return $this->readDocumentAndGetArray($document);
+    }
+
+    /**
+     * @param \DOMDocument $document
+     * @param int|string   $workflowId
+     *
+     * @return []
+     *
+     * @throws IdAttributeNotFoundException
+     *
+     * @since Method available since Release 1.3.0
+     */
+    private function readDocumentAndGetArray(\DOMDocument $document, $workflowId = null)
+    {
+        $errorToExceptionContext = new ErrorToExceptionContext(E_WARNING, function () use ($document) {
+            $document->schemaValidate(dirname(__DIR__) . '/Resources/config/workflower/schema/BPMN20.xsd');
+        });
+        $errorToExceptionContext->invoke();
+
+        $processes = [];
+        $globalData = [
+            'messages'   => [],
+            'operations' => [],
+        ];
+
+        foreach ($document->getElementsByTagNameNs('http://www.omg.org/spec/BPMN/20100524/MODEL', 'message') as $element) {
+            if (!$element->hasAttribute('id')) {
+                throw new IdAttributeNotFoundException(sprintf('Element "%s" has no id', $element->tagName));
+            }
+
+            $globalData['messages'][$element->getAttribute('id')] = $element->getAttribute('name');
+        }
+
+        foreach ($document->getElementsByTagNameNs('http://www.omg.org/spec/BPMN/20100524/MODEL', 'operation') as $element) {
+            if (!$element->hasAttribute('id')) {
+                throw new IdAttributeNotFoundException(sprintf('Element "%s" has no id', $element->tagName));
+            }
+
+            $globalData['operations'][$element->getAttribute('id')] = $element->getAttribute('name');
+        }
+
+        foreach ($document->getElementsByTagNameNs('http://www.omg.org/spec/BPMN/20100524/MODEL', 'process') as $element) {
+            $processes[] = $this->readProcess($globalData, $element);
+        }
+
+        return $processes;
+    }
+
+    /**
      * @param \DOMDocument $document
      * @param int|string   $workflowId
      *
@@ -68,13 +134,13 @@ class Bpmn2Reader
     private function readDocument(\DOMDocument $document, $workflowId = null)
     {
         $errorToExceptionContext = new ErrorToExceptionContext(E_WARNING, function () use ($document) {
-            $document->schemaValidate(dirname(__DIR__).'/Resources/config/workflower/schema/BPMN20.xsd');
+            $document->schemaValidate(dirname(__DIR__) . '/Resources/config/workflower/schema/BPMN20.xsd');
         });
         $errorToExceptionContext->invoke();
 
         $processes = [];
         $globalData = [
-            'messages' => [],
+            'messages'   => [],
             'operations' => [],
         ];
 
@@ -114,9 +180,9 @@ class Bpmn2Reader
         }
 
         $process = [
-            'id' => $rootElement->getAttribute('id'),
-            'name' => $rootElement->hasAttribute('name') ? $rootElement->getAttribute('name') : null,
-            'roles' => [],
+            'id'          => $rootElement->getAttribute('id'),
+            'name'        => $rootElement->hasAttribute('name') ? $rootElement->getAttribute('name') : null,
+            'roles'       => [],
             'objectRoles' => [],
         ];
 
@@ -128,7 +194,7 @@ class Bpmn2Reader
             $id = $element->getAttribute('id');
 
             $process['roles'][] = [
-                'id' => $id,
+                'id'   => $id,
                 'name' => $element->hasAttribute('name') ? $element->getAttribute('name') : null,
             ];
 
@@ -213,8 +279,8 @@ class Bpmn2Reader
         }
 
         $config = [
-            'id' => $id,
-            'name' => $element->hasAttribute('name') ? $element->getAttribute('name') : null,
+            'id'     => $id,
+            'name'   => $element->hasAttribute('name') ? $element->getAttribute('name') : null,
             'roleId' => $this->provideRoleIdForFlowObject($process['objectRoles'], $id),
         ];
 
@@ -261,8 +327,8 @@ class Bpmn2Reader
             $defaultSequenceFlowId = $element->hasAttribute('default') ? $element->getAttribute('default') : null;
 
             $config = [
-                'id' => $id,
-                'name' => $element->hasAttribute('name') ? $element->getAttribute('name') : null,
+                'id'     => $id,
+                'name'   => $element->hasAttribute('name') ? $element->getAttribute('name') : null,
                 'roleId' => $this->provideRoleIdForFlowObject($process['objectRoles'], $id),
             ];
 
@@ -295,7 +361,7 @@ class Bpmn2Reader
             $name = $element->hasAttribute('name') ? $element->getAttribute('name') : null;
 
             $config = [
-                'id' => $id,
+                'id'     => $id,
                 'roleId' => $this->provideRoleIdForFlowObject($process['objectRoles'], $id),
             ];
 
@@ -335,8 +401,8 @@ class Bpmn2Reader
             }
 
             $config = [
-                'id' => $id,
-                'source' => $element->getAttribute('sourceRef'),
+                'id'          => $id,
+                'source'      => $element->getAttribute('sourceRef'),
                 'destination' => $element->getAttribute('targetRef'),
             ];
 

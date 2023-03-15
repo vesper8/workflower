@@ -41,8 +41,9 @@ abstract class FlowObject implements FlowObjectInterface, TransitionalInterface,
     public function serialize()
     {
         return serialize([
-            'token' => $this->token,
-            'started' => $this->started,
+            'token'           => $this->token,
+            'started'         => $this->started,
+            'processInstance' => $this->processInstance,
         ]);
     }
 
