@@ -85,7 +85,7 @@ class Bpmn2Reader
      *
      * @since Method available since Release 1.3.0
      */
-    private function readDocumentAndGetArray(\DOMDocument $document, $workflowId = null)
+    protected function readDocumentAndGetArray(\DOMDocument $document, $workflowId = null)
     {
         $errorToExceptionContext = new ErrorToExceptionContext(E_WARNING, function () use ($document) {
             $document->schemaValidate(dirname(__DIR__) . '/Resources/config/workflower/schema/BPMN20.xsd');
@@ -131,7 +131,7 @@ class Bpmn2Reader
      *
      * @since Method available since Release 1.3.0
      */
-    private function readDocument(\DOMDocument $document, $workflowId = null)
+    protected function readDocument(\DOMDocument $document, $workflowId = null)
     {
         $errorToExceptionContext = new ErrorToExceptionContext(E_WARNING, function () use ($document) {
             $document->schemaValidate(dirname(__DIR__) . '/Resources/config/workflower/schema/BPMN20.xsd');
@@ -173,7 +173,7 @@ class Bpmn2Reader
      *
      * @return array
      */
-    private function readProcess(array $globalData, \DOMElement $rootElement)
+    protected function readProcess(array $globalData, \DOMElement $rootElement)
     {
         if (!$rootElement->hasAttribute('id')) {
             throw new IdAttributeNotFoundException(sprintf('Element "%s" has no id', $rootElement->tagName));
@@ -239,7 +239,7 @@ class Bpmn2Reader
      * @param array        $process
      * @param \DOMNodeList $nodes
      */
-    private function readTasks(array $globalData, array $process, $nodes)
+    protected function readTasks(array $globalData, array $process, $nodes)
     {
         $items = [];
 
@@ -255,7 +255,7 @@ class Bpmn2Reader
      * @param array       $process
      * @param \DOMElement $element
      */
-    private function readTask(array $globalData, array $process, $element)
+    protected function readTask(array $globalData, array $process, $element)
     {
         if (!$element->hasAttribute('id')) {
             throw new IdAttributeNotFoundException(sprintf('Element "%s" has no id', $element->tagName));
@@ -314,7 +314,7 @@ class Bpmn2Reader
      * @param array        $process
      * @param \DOMNodeList $nodes
      */
-    private function readGateways(array $globalData, array $process, $nodes)
+    protected function readGateways(array $globalData, array $process, $nodes)
     {
         $items = [];
 
@@ -347,7 +347,7 @@ class Bpmn2Reader
      * @param array        $process
      * @param \DOMNodeList $nodes
      */
-    private function readEvents(array $globalData, array $process, $nodes)
+    protected function readEvents(array $globalData, array $process, $nodes)
     {
         $items = [];
 
@@ -383,7 +383,7 @@ class Bpmn2Reader
      * @param array        $process
      * @param \DOMNodeList $nodes
      */
-    private function readSequenceFlows(array $globalData, array $process, $nodes)
+    protected function readSequenceFlows(array $globalData, array $process, $nodes)
     {
         $items = [];
 
@@ -425,7 +425,7 @@ class Bpmn2Reader
      *
      * @return IdAttributeNotFoundException
      */
-    private function createIdAttributeNotFoundException(\DOMElement $element, $processInstanceId)
+    protected function createIdAttributeNotFoundException(\DOMElement $element, $processInstanceId)
     {
         return new IdAttributeNotFoundException(sprintf('The id attribute of the "%s" element is not found in workflow "%s" on line %d', $element->tagName, $processInstanceId, $element->getLineNo()));
     }
@@ -438,7 +438,7 @@ class Bpmn2Reader
      *
      * @since Method available since Release 1.3.0
      */
-    private function provideRoleIdForFlowObject(array $flowObjectRoles, $flowObjectId)
+    protected function provideRoleIdForFlowObject(array $flowObjectRoles, $flowObjectId)
     {
         return count($flowObjectRoles) ? $flowObjectRoles[$flowObjectId] : ProcessInstance::DEFAULT_ROLE_ID;
     }
